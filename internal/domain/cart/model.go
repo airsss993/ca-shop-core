@@ -10,8 +10,6 @@ type Cart struct {
 	Products   []Product
 }
 
-// TODO: Реализовать метод HasProduct(sku string) bool
-
 // TODO: Реализовать метод QuantityOf(sku string) int
 
 // TODO: Реализовать метод Clear()
@@ -20,14 +18,24 @@ type Cart struct {
 
 // TODO: Реализовать метод IsEmpty() bool
 
-func (c *Cart) Remove(SKU string) {
+func (c *Cart) Add(p Product) {
+	c.Products = append(c.Products, p)
+	c.TotalPrice += p.Price
+}
+
+func (c *Cart) Remove(sku string) {
 	var newProducts []Product
 	for _, p := range c.Products {
-		if p.SKU != SKU {
+		if p.SKU != sku {
 			newProducts = append(newProducts, p)
 		}
 	}
 	c.Products = newProducts
+}
+
+func (c *Cart) Clear() {
+	c.Products = nil
+	c.TotalPrice = 0
 }
 
 func (c *Cart) Sum() {

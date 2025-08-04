@@ -6,28 +6,66 @@ import (
 )
 
 type Service struct {
-	repo cart.CartRepository
+	repo    cart.CartRepository
+	catalog cart.ProductCatalog
 }
 
-func NewService(repo cart.CartRepository) *Service {
-	return &Service{repo: repo}
+func NewService(repo cart.CartRepository, catalog cart.ProductCatalog) *Service {
+	return &Service{repo: repo, catalog: catalog}
 }
 
-// TODO: AddProduct(userID, sku string)
+func (s *Service) GetCart(userId string) (*cart.Cart, error) {
+	userCart, err := s.repo.GetByUserID(userId)
+	if err != nil {
+		log.Printf("failed to get cart for user ID %s: %v", userId, err)
+		return nil, err
+	}
+	return userCart, nil
+}
+
+func (s *Service) AddProduct(userId, sku string) {
+	userCart, err := s.repo.GetByUserID(userId)
+	if err != nil {
+		log.Printf("failed to get cart for user ID %s: %v", userId, err)
+		return
+	}
+	
+	product, err := s.catalog.GetBySKU(sku)
+	if err != nil {
+		log.Printf("product with sku %s not found: %v", sku, err)
+		return
+	}
+
+	userCart.Add(product)
+}
 
 func (s *Service) RemoveProduct(userId, sku string) {
-	cart, err := s.repo.GetByUserID(userId)
+	userCart, err := s.repo.GetByUserID(userId)
 	if err != nil {
 		log.Printf("failed to get cart for user ID %s: %v", userId, err)
 		return
 	}
 
-	cart.Remove(sku)
+	userCart.Remove(sku)
 
-	if err := s.repo.Save(cart); err != nil {
+	if err := s.repo.Save(userCart); err != nil {
 		log.Printf("failed to save updated cart for user ID %s: %v", userId, err)
 	}
 }
 
-// TODO: GetCart(userID string)
-// TODO: ClearCart(userID string)
+func (s *Service) CleanCart(userId string) (*cart.Cart, error) {
+	userCart, err := s.repo.GetByUserID(userId)
+	if err != nil {
+		log.Printf("failed to get cart for user ID %s: %v", userId, err)
+		return nil, err
+	}
+
+	userCart.Clear()
+
+	if err := s.repo.Save(userCart); err != nil {
+		log.Printf("failed to save cleaned cart for user ID %s: %v", userId, err)
+		return nil, err
+	}
+
+	return userCart, nil
+}
