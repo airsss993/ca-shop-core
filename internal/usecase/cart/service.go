@@ -6,11 +6,11 @@ import (
 )
 
 type Service struct {
-	repo    cart.CartRepository
+	repo    cart.Repository
 	catalog cart.ProductCatalog
 }
 
-func NewService(repo cart.CartRepository, catalog cart.ProductCatalog) *Service {
+func NewService(repo cart.Repository, catalog cart.ProductCatalog) *Service {
 	return &Service{repo: repo, catalog: catalog}
 }
 
@@ -29,7 +29,7 @@ func (s *Service) AddProduct(userId, sku string) {
 		log.Printf("failed to get cart for user ID %s: %v", userId, err)
 		return
 	}
-	
+
 	product, err := s.catalog.GetBySKU(sku)
 	if err != nil {
 		log.Printf("product with sku %s not found: %v", sku, err)

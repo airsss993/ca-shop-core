@@ -1,6 +1,6 @@
 package cart
 
-type CartRepository interface {
+type Repository interface {
 	GetByUserID(userId string) (*Cart, error)
 	Save(cart *Cart) error
 }

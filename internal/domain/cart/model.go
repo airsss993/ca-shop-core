@@ -1,8 +1,9 @@
 package cart
 
 type Product struct {
-	SKU   string
-	Price int
+	SKU      string
+	Price    int
+	Quantity int
 }
 type Cart struct {
 	UserID     string
@@ -10,15 +11,21 @@ type Cart struct {
 	Products   []Product
 }
 
-// TODO: Реализовать метод QuantityOf(sku string) int
+// TODO: QuantityOf(sku string) int
 
-// TODO: Реализовать метод Clear()
+// TODO: TotalItems() int
 
-// TODO: Реализовать метод TotalItems() int
-
-// TODO: Реализовать метод IsEmpty() bool
+// TODO: IsEmpty() bool
 
 func (c *Cart) Add(p Product) {
+	for i := range c.Products {
+		if c.Products[i].SKU == p.SKU {
+			c.Products[i].Quantity += 1
+			c.TotalPrice += p.Price
+			return
+		}
+	}
+	p.Quantity = 1
 	c.Products = append(c.Products, p)
 	c.TotalPrice += p.Price
 }
@@ -38,7 +45,7 @@ func (c *Cart) Clear() {
 	c.TotalPrice = 0
 }
 
-func (c *Cart) Sum() {
+func (c *Cart) Total() {
 	var total int
 	for _, v := range c.Products {
 		total += v.Price
