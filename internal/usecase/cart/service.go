@@ -1,6 +1,7 @@
 package cart
 
 import (
+	"context"
 	"github.com/airsss993/ca-shop-core/internal/domain/cart"
 	"log"
 )
@@ -14,8 +15,8 @@ func NewService(repo cart.Repository, catalog cart.ProductCatalog) *Service {
 	return &Service{repo: repo, catalog: catalog}
 }
 
-func (s *Service) GetCart(userId string) (*cart.Cart, error) {
-	userCart, err := s.repo.GetByUserID(userId)
+func (s *Service) GetCart(ctx context.Context, userId string) (*cart.Cart, error) {
+	userCart, err := s.repo.GetByUserID(ctx, userId)
 	if err != nil {
 		log.Printf("failed to get cart for user ID %s: %v", userId, err)
 		return nil, err
@@ -23,8 +24,8 @@ func (s *Service) GetCart(userId string) (*cart.Cart, error) {
 	return userCart, nil
 }
 
-func (s *Service) AddProduct(userId, sku string) {
-	userCart, err := s.repo.GetByUserID(userId)
+func (s *Service) AddProduct(ctx context.Context, userId, sku string) {
+	userCart, err := s.repo.GetByUserID(ctx, userId)
 	if err != nil {
 		log.Printf("failed to get cart for user ID %s: %v", userId, err)
 		return
@@ -39,8 +40,8 @@ func (s *Service) AddProduct(userId, sku string) {
 	userCart.Add(product)
 }
 
-func (s *Service) RemoveProduct(userId, sku string) {
-	userCart, err := s.repo.GetByUserID(userId)
+func (s *Service) RemoveProduct(ctx context.Context, userId, sku string) {
+	userCart, err := s.repo.GetByUserID(ctx, userId)
 	if err != nil {
 		log.Printf("failed to get cart for user ID %s: %v", userId, err)
 		return
@@ -48,13 +49,13 @@ func (s *Service) RemoveProduct(userId, sku string) {
 
 	userCart.Remove(sku)
 
-	if err := s.repo.Save(userCart); err != nil {
+	if err := s.repo.Save(ctx, userCart); err != nil {
 		log.Printf("failed to save updated cart for user ID %s: %v", userId, err)
 	}
 }
 
-func (s *Service) CleanCart(userId string) (*cart.Cart, error) {
-	userCart, err := s.repo.GetByUserID(userId)
+func (s *Service) CleanCart(ctx context.Context, userId string) (*cart.Cart, error) {
+	userCart, err := s.repo.GetByUserID(ctx, userId)
 	if err != nil {
 		log.Printf("failed to get cart for user ID %s: %v", userId, err)
 		return nil, err
@@ -62,7 +63,7 @@ func (s *Service) CleanCart(userId string) (*cart.Cart, error) {
 
 	userCart.Clear()
 
-	if err := s.repo.Save(userCart); err != nil {
+	if err := s.repo.Save(ctx, userCart); err != nil {
 		log.Printf("failed to save cleaned cart for user ID %s: %v", userId, err)
 		return nil, err
 	}

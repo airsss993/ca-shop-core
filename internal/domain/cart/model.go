@@ -2,12 +2,12 @@ package cart
 
 type Product struct {
 	SKU      string
-	Price    int
+	Price    int64
 	Quantity int
 }
 type Cart struct {
 	UserID     string
-	TotalPrice int
+	TotalPrice int64
 	Products   []Product
 }
 
@@ -21,23 +21,30 @@ func (c *Cart) Add(p Product) {
 	for i := range c.Products {
 		if c.Products[i].SKU == p.SKU {
 			c.Products[i].Quantity += 1
-			c.TotalPrice += p.Price
+			c.RecalculateTotal()
 			return
 		}
 	}
 	p.Quantity = 1
 	c.Products = append(c.Products, p)
-	c.TotalPrice += p.Price
+	c.RecalculateTotal()
 }
 
 func (c *Cart) Remove(sku string) {
 	var newProducts []Product
 	for _, p := range c.Products {
-		if p.SKU != sku {
+		if p.SKU == sku {
+			if p.Quantity > 1 {
+				p.Quantity = p.Quantity - 1
+				newProducts = append(newProducts, p)
+			}
+			continue
+		} else {
 			newProducts = append(newProducts, p)
 		}
 	}
 	c.Products = newProducts
+	c.RecalculateTotal()
 }
 
 func (c *Cart) Clear() {
@@ -45,10 +52,10 @@ func (c *Cart) Clear() {
 	c.TotalPrice = 0
 }
 
-func (c *Cart) Total() {
-	var total int
+func (c *Cart) RecalculateTotal() {
+	var total int64
 	for _, v := range c.Products {
-		total += v.Price
+		total += v.Price * int64(v.Quantity)
 	}
 	c.TotalPrice = total
 }
