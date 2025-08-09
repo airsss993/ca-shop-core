@@ -8,5 +8,5 @@ type Repository interface {
 }
 
 type ProductCatalog interface {
-	GetBySKU(sku string) (Product, error)
+	GetBySKU(ctx context.Context, sku string) (Product, error)
 }

@@ -1,5 +1,7 @@
 package cart
 
+import "time"
+
 type Product struct {
 	SKU      string
 	Price    int64
@@ -9,6 +11,7 @@ type Cart struct {
 	UserID     string
 	TotalPrice int64
 	Products   []Product
+	UpdatedAt  time.Time
 }
 
 // TODO: QuantityOf(sku string) int
