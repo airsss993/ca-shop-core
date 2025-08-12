@@ -14,12 +14,6 @@ type Cart struct {
 	UpdatedAt  time.Time
 }
 
-// TODO: QuantityOf(sku string) int
-
-// TODO: TotalItems() int
-
-// TODO: IsEmpty() bool
-
 func (c *Cart) Add(p Product) {
 	for i := range c.Products {
 		if c.Products[i].SKU == p.SKU {
@@ -47,12 +41,14 @@ func (c *Cart) Remove(sku string) {
 		}
 	}
 	c.Products = newProducts
+	c.UpdatedAt = time.Now()
 	c.RecalculateTotal()
 }
 
 func (c *Cart) Clear() {
-	c.Products = nil
+	c.Products = []Product{}
 	c.TotalPrice = 0
+	c.UpdatedAt = time.Now()
 }
 
 func (c *Cart) RecalculateTotal() {
@@ -62,3 +58,9 @@ func (c *Cart) RecalculateTotal() {
 	}
 	c.TotalPrice = total
 }
+
+// TODO: QuantityOf(sku string) int
+
+// TODO: TotalItems() int
+
+// TODO: IsEmpty() bool

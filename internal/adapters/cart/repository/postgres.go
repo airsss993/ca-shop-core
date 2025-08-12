@@ -3,7 +3,10 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"time"
+
 	"github.com/airsss993/ca-shop-core/internal/domain/cart"
 	"github.com/lib/pq"
 )
@@ -12,27 +15,31 @@ type PostgresRepository struct {
 	db *sql.DB
 }
 
-func NewPostgresRepository(db *sql.DB) cart.Repository {
+func NewPostgresRepository(db *sql.DB) *PostgresRepository {
 	return &PostgresRepository{db: db}
 }
 
-func (p *PostgresRepository) GetByUserID(ctx context.Context, userId string) (*cart.Cart, error) {
+func (p *PostgresRepository) GetCartByUserID(ctx context.Context, userId string) (*cart.Cart, error) {
 	var userCart cart.Cart
-
-	// todo: если в бд ничего нет, то вернуть пустую корзину и не возвращать ошибку
 
 	query := `SELECT user_id, total_price FROM carts WHERE user_id=$1`
 	row := p.db.QueryRowContext(ctx, query, userId)
 
 	err := row.Scan(&userCart.UserID, &userCart.TotalPrice)
+	if errors.Is(err, sql.ErrNoRows) {
+		return &cart.Cart{
+			UserID:     userId,
+			TotalPrice: 0,
+			Products:   []cart.Product{},
+			UpdatedAt:  time.Now(),
+		}, nil
+	}
 	if err != nil {
 		return nil, err
 	}
 
 	query = `SELECT sku, price, quantity FROM cart_items WHERE user_id=$1`
 	rows, err := p.db.QueryContext(ctx, query, userId)
-
-	defer rows.Close()
 
 	userCart.Products = make([]cart.Product, 0)
 
@@ -45,12 +52,14 @@ func (p *PostgresRepository) GetByUserID(ctx context.Context, userId string) (*c
 		userCart.Products = append(userCart.Products, cartProduct)
 	}
 
+	defer rows.Close()
+
 	userCart.RecalculateTotal()
 
 	return &userCart, nil
 }
 
-func (p *PostgresRepository) Save(ctx context.Context, cart *cart.Cart) error {
+func (p *PostgresRepository) SaveCart(ctx context.Context, cart *cart.Cart) error {
 	cart.RecalculateTotal()
 
 	tx, err := p.db.BeginTx(ctx, nil)
@@ -58,7 +67,7 @@ func (p *PostgresRepository) Save(ctx context.Context, cart *cart.Cart) error {
 		return fmt.Errorf("begin transaction: %w", err)
 	}
 	defer tx.Rollback()
-	
+
 	query := `
         INSERT INTO carts (user_id, total_price, updated_at)
         VALUES ($1, $2, $3)

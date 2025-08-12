@@ -2,6 +2,7 @@ package cart
 
 import (
 	"context"
+
 	"github.com/airsss993/ca-shop-core/internal/domain/cart"
 )
 
@@ -15,7 +16,7 @@ func NewService(repo cart.Repository, catalog cart.ProductCatalog) *Service {
 }
 
 func (s *Service) GetCart(ctx context.Context, userId string) (*cart.Cart, error) {
-	userCart, err := s.repo.GetByUserID(ctx, userId)
+	userCart, err := s.repo.GetCartByUserID(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +24,7 @@ func (s *Service) GetCart(ctx context.Context, userId string) (*cart.Cart, error
 }
 
 func (s *Service) AddProduct(ctx context.Context, userId, sku string) error {
-	userCart, err := s.repo.GetByUserID(ctx, userId)
+	userCart, err := s.repo.GetCartByUserID(ctx, userId)
 	if err != nil {
 		return err
 	}
@@ -35,7 +36,7 @@ func (s *Service) AddProduct(ctx context.Context, userId, sku string) error {
 
 	userCart.Add(product)
 
-	err = s.repo.Save(ctx, userCart)
+	err = s.repo.SaveCart(ctx, userCart)
 	if err != nil {
 		return err
 	}
@@ -44,14 +45,14 @@ func (s *Service) AddProduct(ctx context.Context, userId, sku string) error {
 }
 
 func (s *Service) RemoveProduct(ctx context.Context, userId, sku string) error {
-	userCart, err := s.repo.GetByUserID(ctx, userId)
+	userCart, err := s.repo.GetCartByUserID(ctx, userId)
 	if err != nil {
 		return err
 	}
 
 	userCart.Remove(sku)
 
-	if err := s.repo.Save(ctx, userCart); err != nil {
+	if err := s.repo.SaveCart(ctx, userCart); err != nil {
 		return err
 	}
 
@@ -59,14 +60,14 @@ func (s *Service) RemoveProduct(ctx context.Context, userId, sku string) error {
 }
 
 func (s *Service) CleanCart(ctx context.Context, userId string) (*cart.Cart, error) {
-	userCart, err := s.repo.GetByUserID(ctx, userId)
+	userCart, err := s.repo.GetCartByUserID(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
 	userCart.Clear()
 
-	if err := s.repo.Save(ctx, userCart); err != nil {
+	if err := s.repo.SaveCart(ctx, userCart); err != nil {
 		return nil, err
 	}
 
