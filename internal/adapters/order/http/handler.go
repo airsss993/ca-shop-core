@@ -88,6 +88,8 @@ func (h *CartHandler) AddToCart(c *gin.Context) {
 	})
 }
 
+// TODO: DELETE /cart/:userid/items/:sku — убрать 1 шт
+
 func (h *CartHandler) DeleteFromCart(c *gin.Context) {
 	userId := c.Param("userid")
 	if strings.TrimSpace(userId) == "" {
@@ -120,6 +122,8 @@ func (h *CartHandler) DeleteFromCart(c *gin.Context) {
 		"message": "successfully removed from cart",
 	})
 }
+
+// TODO: DELETE /cart/:userid — очистить корзину
 
 func (h *CartHandler) ClearCart(c *gin.Context) {
 	userId := c.Param("userid")

@@ -16,6 +16,7 @@ func main() {
 	db := db2.InitDB()
 	defer db.Close()
 	pgRepo := repository.NewPostgresRepository(db)
+	// todo: сделать каталог
 	cartService := cart.NewService(pgRepo, nil)
 	cartHandler := http.NewCartHandler(*cartService)
 	cartHandler.RegisterRoutes(&router.RouterGroup)

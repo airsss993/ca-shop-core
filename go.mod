@@ -1,6 +1,6 @@
 module github.com/airsss993/ca-shop-core
 
-go 1.24.5
+go 1.25.0
 
 require (
 	github.com/gin-gonic/gin v1.10.1
