@@ -1,19 +1,18 @@
 package order
 
 import (
-	"errors"
 	"time"
 
 	"github.com/airsss993/ca-shop-core/internal/domain/cart"
 )
 
-type OrderStatus string
+type Status string
 
 const (
-	OrderStatusCreated   OrderStatus = "created"
-	OrderStatusValidated OrderStatus = "validated"
-	OrderStatusPaid      OrderStatus = "paid"
-	OrderStatusCanceled  OrderStatus = "canceled"
+	StatusCreated   Status = "created"
+	StatusValidated Status = "validated"
+	StatusPaid      Status = "paid"
+	StatusCanceled  Status = "canceled"
 )
 
 type Order struct {
@@ -21,42 +20,12 @@ type Order struct {
 	UserID       string
 	Items        []cart.Product
 	Price        int64
-	Status       OrderStatus
+	Status       Status
 	CreatedAt    time.Time
 	ValidatedAt  *time.Time
 	PaidAt       *time.Time
 	CanceledAt   *time.Time
 	CancelReason *string
-}
-
-var (
-	ErrEmptyOrder        = errors.New("order is empty")
-	ErrInvalidItem       = errors.New("order has invalid item")
-	ErrDuplicateSKU      = errors.New("order has duplicate SKU")
-	ErrPriceMismatch     = errors.New("order price mismatch")
-	ErrInvalidTransition = errors.New("invalid status transition")
-)
-
-func (o *Order) BasicValidate() error {
-	if len(o.Items) == 0 {
-		return ErrEmptyOrder
-	}
-
-	for _, it := range o.Items {
-		if it.SKU == "" || it.Quantity <= 0 || it.Price < 0 {
-			return ErrInvalidItem
-		}
-	}
-
-	if o.TotalFromItems() != o.Price {
-		return ErrPriceMismatch
-	}
-
-	if o.Status != OrderStatusCreated {
-		return ErrInvalidTransition
-	}
-
-	return nil
 }
 
 func (o *Order) TotalFromItems() int64 {
@@ -67,4 +36,23 @@ func (o *Order) TotalFromItems() int64 {
 	}
 
 	return total
+}
+
+func (o *Order) MarkAsValidated() {
+	o.Status = StatusValidated
+	now := time.Now()
+	o.ValidatedAt = &now
+}
+
+func (o *Order) MarkAsPaid() {
+	o.Status = StatusPaid
+	now := time.Now()
+	o.PaidAt = &now
+}
+
+func (o *Order) Cancel(reason string) {
+	o.Status = StatusCanceled
+	now := time.Now()
+	o.CanceledAt = &now
+	o.CancelReason = &reason
 }

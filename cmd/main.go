@@ -15,11 +15,14 @@ func main() {
 
 	db := db2.InitDB()
 	defer db.Close()
-	pgRepo := repository.NewPostgresRepository(db)
-	// todo: сделать каталог
-	cartService := cart.NewService(pgRepo, nil)
+
+	// Cart Module
+	cartRepo := repository.NewCartRepository(db)
+	cartService := cart.NewService(cartRepo, nil)
 	cartHandler := http.NewCartHandler(*cartService)
 	cartHandler.RegisterRoutes(&router.RouterGroup)
+
+	// Order Module
 
 	err := router.Run()
 	if err != nil {
