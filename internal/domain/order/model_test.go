@@ -20,13 +20,13 @@ func TestOrder_BasicValidate(t *testing.T) {
 	}{
 		{
 			name:    "empty order",
-			o:       order.Order{Status: order.OrderStatusCreated},
+			o:       order.Order{Status: order.StatusCreated},
 			wantErr: order.ErrEmptyOrder,
 		},
 		{
 			name: "invalid item (quantity <= 0)",
 			o: order.Order{
-				Status: order.OrderStatusCreated,
+				Status: order.StatusCreated,
 				Items: []cart.Product{
 					{SKU: "A", Quantity: 0, Price: 100},
 				},
@@ -37,7 +37,7 @@ func TestOrder_BasicValidate(t *testing.T) {
 		{
 			name: "price mismatch",
 			o: order.Order{
-				Status: order.OrderStatusCreated,
+				Status: order.StatusCreated,
 				Items: []cart.Product{
 					{SKU: "A", Quantity: 1, Price: 100},
 					{SKU: "B", Quantity: 2, Price: 150},
@@ -49,7 +49,7 @@ func TestOrder_BasicValidate(t *testing.T) {
 		{
 			name: "valid order passes",
 			o: order.Order{
-				Status:    order.OrderStatusCreated,
+				Status:    order.StatusCreated,
 				CreatedAt: now,
 				Items: []cart.Product{
 					{SKU: "A", Quantity: 1, Price: 100},

@@ -15,11 +15,11 @@ type PostgresRepository struct {
 	db *sql.DB
 }
 
-func NewPostgresRepository(db *sql.DB) *PostgresRepository {
+func NewCartRepository(db *sql.DB) *PostgresRepository {
 	return &PostgresRepository{db: db}
 }
 
-func (p *PostgresRepository) GetCartByUserID(ctx context.Context, userId string) (*cart.Cart, error) {
+func (p *PostgresRepository) GetByUserID(ctx context.Context, userId string) (*cart.Cart, error) {
 	var userCart cart.Cart
 
 	query := `SELECT user_id, total_price FROM carts WHERE user_id=$1`
@@ -59,12 +59,12 @@ func (p *PostgresRepository) GetCartByUserID(ctx context.Context, userId string)
 	return &userCart, nil
 }
 
-func (p *PostgresRepository) SaveCart(ctx context.Context, cart *cart.Cart) error {
+func (p *PostgresRepository) Save(ctx context.Context, cart *cart.Cart) error {
 	cart.RecalculateTotal()
 
 	tx, err := p.db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("begin transaction: %w", err)
+		return fmt.Errorf("begin transaction error: %w", err)
 	}
 	defer tx.Rollback()
 

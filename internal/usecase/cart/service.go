@@ -16,15 +16,16 @@ func NewService(repo cart.Repository, catalog cart.ProductCatalog) *Service {
 }
 
 func (s *Service) GetCart(ctx context.Context, userId string) (*cart.Cart, error) {
-	userCart, err := s.repo.GetCartByUserID(ctx, userId)
+	userCart, err := s.repo.GetByUserID(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
+
 	return userCart, nil
 }
 
 func (s *Service) AddProduct(ctx context.Context, userId, sku string) error {
-	userCart, err := s.repo.GetCartByUserID(ctx, userId)
+	userCart, err := s.repo.GetByUserID(ctx, userId)
 	if err != nil {
 		return err
 	}
@@ -36,7 +37,7 @@ func (s *Service) AddProduct(ctx context.Context, userId, sku string) error {
 
 	userCart.Add(product)
 
-	err = s.repo.SaveCart(ctx, userCart)
+	err = s.repo.Save(ctx, userCart)
 	if err != nil {
 		return err
 	}
@@ -45,14 +46,14 @@ func (s *Service) AddProduct(ctx context.Context, userId, sku string) error {
 }
 
 func (s *Service) RemoveProduct(ctx context.Context, userId, sku string) error {
-	userCart, err := s.repo.GetCartByUserID(ctx, userId)
+	userCart, err := s.repo.GetByUserID(ctx, userId)
 	if err != nil {
 		return err
 	}
 
 	userCart.Remove(sku)
 
-	if err := s.repo.SaveCart(ctx, userCart); err != nil {
+	if err := s.repo.Save(ctx, userCart); err != nil {
 		return err
 	}
 
@@ -60,14 +61,14 @@ func (s *Service) RemoveProduct(ctx context.Context, userId, sku string) error {
 }
 
 func (s *Service) ClearCart(ctx context.Context, userId string) error {
-	userCart, err := s.repo.GetCartByUserID(ctx, userId)
+	userCart, err := s.repo.GetByUserID(ctx, userId)
 	if err != nil {
 		return err
 	}
 
 	userCart.Clear()
 
-	if err := s.repo.SaveCart(ctx, userCart); err != nil {
+	if err := s.repo.Save(ctx, userCart); err != nil {
 		return err
 	}
 

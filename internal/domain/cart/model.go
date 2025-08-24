@@ -58,9 +58,3 @@ func (c *Cart) RecalculateTotal() {
 	}
 	c.TotalPrice = total
 }
-
-// TODO: QuantityOf(sku string) int
-
-// TODO: TotalItems() int
-
-// TODO: IsEmpty() bool
